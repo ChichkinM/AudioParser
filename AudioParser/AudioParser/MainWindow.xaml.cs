@@ -15,8 +15,6 @@ using System.Windows.Shapes;
 using AudioParser.Properties;
 using System.Text.RegularExpressions;
 
-//TODO По возможности list-ы поменять на массивы.
-
 namespace AudioParser
 {
     /// <summary>
@@ -39,19 +37,26 @@ namespace AudioParser
 
             tbEthernetAdr.Text = Settings.Default.ServerIp;
             tbEthernetPort.Text = Settings.Default.ServerPort;
+
+            Parser.Start();
         }
 
         private void SetDevices()
         {
+            Parser.Close();
             cbDevices.ItemsSource = Devices.GetDevices();
+
             cbDevices.SelectedValue = Settings.Default.Device;
             if (cbDevices.SelectedItem == null && cbDevices.Items.Count > 0)
                 cbDevices.SelectedIndex = 0;
+
+            Parser.Start();
         }
 
         private void SetSerialPorts()
         {
             cbComPorts.ItemsSource = Port.GetPorts();
+
             cbComPorts.SelectedValue = Settings.Default.SerialPort;
             if (cbComPorts.SelectedItem == null && cbComPorts.Items.Count > 0)
                 cbComPorts.SelectedIndex = 0;
@@ -73,7 +78,7 @@ namespace AudioParser
                 Settings.Default.Save();
             }
         }
-        //TODO Починить: при замене текста на один символ он добавляется к старому (удаленному тексту)
+
         private void tbEthernetAdr_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if(!IsRightInputText(e.Text, @"[\d.]"))

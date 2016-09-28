@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net.Sockets;
 
 namespace AudioParser
 {
+    /// <summary>
+    /// Логика взаимодействия с сетевым подключением.
+    /// </summary>
     class Network
     {
-        private TcpClient Client { get; set; }
-        private NetworkStream ClientStream { get; set; }
+        private TcpClient Client;
+        private NetworkStream ClientStream;
 
         public bool Use { get; set; }
         public bool Connected { get; private set; }

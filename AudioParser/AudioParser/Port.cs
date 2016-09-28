@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO.Ports;
 
 namespace AudioParser
 {
+    /// <summary>
+    /// Логика взаимодействия с последовательным портом.
+    /// </summary>
     class Port
     {
-        //TODO Сделать признак подключенности к порту.
-        private SerialPort Serial { get; set; }
         public bool Use { get; set; }
         public bool Connected { get; private set; }
+
+        private SerialPort Serial;
 
         /// <summary>
         /// Конструктор класса.
@@ -53,7 +53,7 @@ namespace AudioParser
         /// <param name="data">Байтовый массив данных.</param>
         public void Send(byte[] data)
         {
-            if(Serial.IsOpen)
+            if (Serial.IsOpen)
             Serial.Write(data, 0, data.Length);
         }
 

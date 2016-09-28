@@ -70,5 +70,23 @@ namespace AudioParser.Properties {
                 this["ServerPort"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("AudioParser@yandex.ru")]
+        public string LicenseUser {
+            get {
+                return ((string)(this["LicenseUser"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2X3837213438")]
+        public string LicensePass {
+            get {
+                return ((string)(this["LicensePass"]));
+            }
+        }
     }
 }
