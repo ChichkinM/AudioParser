@@ -146,20 +146,32 @@ namespace AudioParser
         {
             string adr = tbEthernetAdr.Text;
             string portStr = tbEthernetPort.Text;
-            int portInt = Convert.ToInt32(portStr);
+            int portInt = 0;
             bool rightAdr = IsRightInputText(adr, @"\d.\d.\d.\d");
+            bool rightPort = false;
 
-            if (portStr.Length > 0 && rightAdr && portInt > 0)
+            if (portStr.Length > 0)
             {
-                if (Parser.NetworkConnect(adr, portInt))
-                    cbEthernet.Background = ColorConverter("#1000FF00");
-                else
-                    cbEthernet.Background = ColorConverter("#AAFF0000");
+                portInt = Convert.ToInt32(portStr);
+                if (portInt > 0)
+                    rightPort = true;
+            }
 
-                tbEthernetAdr.Background = ColorConverter("#1000FF00");
-                tbEthernetPort.Background = ColorConverter("#1000FF00");
-                tbEthernetAdr.IsEnabled = false;
-                tbEthernetPort.IsEnabled = false;
+            if (rightPort && rightAdr)
+            {
+                portInt = Convert.ToInt32(portStr);
+                if (portInt > 0)
+                {
+                    if (Parser.NetworkConnect(adr, portInt))
+                        cbEthernet.Background = ColorConverter("#1000FF00");
+                    else
+                        cbEthernet.Background = ColorConverter("#AAFF0000");
+
+                    tbEthernetAdr.Background = ColorConverter("#1000FF00");
+                    tbEthernetPort.Background = ColorConverter("#1000FF00");
+                    tbEthernetAdr.IsEnabled = false;
+                    tbEthernetPort.IsEnabled = false;
+                }
             }
             else
             {
@@ -167,7 +179,7 @@ namespace AudioParser
 
                 if (!rightAdr)
                     tbEthernetAdr.Background = ColorConverter("#10FF0000");
-                if (portStr.Length == 0 || portInt == 0)
+                if (!rightPort)
                     tbEthernetPort.Background = ColorConverter("#10FF0000");
             }
         }
