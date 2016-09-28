@@ -1,0 +1,15 @@
+C:\Projects\HomeProjects\AudioParser\AudioParser\bin\Release\AudioParser.exe.config
+C:\Projects\HomeProjects\AudioParser\AudioParser\bin\Release\AudioParser.exe
+C:\Projects\HomeProjects\AudioParser\AudioParser\bin\Release\AudioParser.pdb
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\AudioParser.csprojResolveAssemblyReference.cache
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\MainWindow.g.cs
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\App.g.cs
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\AudioParser_MarkupCompile.cache
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\AudioParser_MarkupCompile.lref
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\MainWindow.baml
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\AudioParser.g.resources
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\AudioParser.exe
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\AudioParser.pdb
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\ColorBox.g.cs
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\ColorBox.baml
+C:\Projects\HomeProjects\AudioParser\AudioParser\obj\Release\GeneratedInternalTypeHelper.g.cs
