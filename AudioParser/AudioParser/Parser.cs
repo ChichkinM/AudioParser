@@ -13,85 +13,87 @@ namespace AudioParser
     /// </summary>
     public static class Parser
     {
-        private const int timerInterval = 40;
-
         public delegate void NewDataHandler(NewDataEventArgs e);
         public static event NewDataHandler OnUpdateData;
 
-        private static DispatcherTimer Timer;
-        private static Port SerialPort;
-        private static Network Client;
+        private static DispatcherTimer timer;
+        private static Port serialPort;
+        private static Network client;
 
-        private static byte[] LastData;
-        private static int[] LastChanges;
-        private static int[] Indexes;
+        private static byte[] lastData;
+        private static int[] indexes;
+        private static int[] lastChanges;
 
-        /// <summary>
-        /// Функция инициализации работы с библиотеками.
-        /// </summary>
+        private const int minTimeWithoutChange = 3;
+        private const int componentsGlobal = 3;
+        private const int componentsForCalc = 15;
+
+        private const int timerInterval = 40;
+
+
         public static void Init()
         {
             BassNet.Registration(Settings.Default.LicenseUser, Settings.Default.LicensePass);
 
-            SerialPort = new Port();
-            Client = new Network();
+            serialPort = new Port();
+            client = new Network();
 
-            LastData = new byte[3];
-            LastChanges = new int[3];
-            Indexes = new int[3] { 0, 1, 2 };
+            lastData = new byte[componentsGlobal];
+            lastChanges = new int[componentsGlobal];
+            indexes = new int[componentsGlobal] { 0, 1, 2 };
 
-            Timer = new DispatcherTimer();
-            Timer.Tick += new EventHandler(CalcSpectrum);
-            Timer.Interval = new TimeSpan(0, 0, 0, 0, timerInterval);
+            timer = new DispatcherTimer();
+            timer.Tick += new EventHandler(CalcSpectrum);
+            timer.Interval = new TimeSpan(0, 0, 0, 0, timerInterval);
         }
 
         public static void Start()
         {
-            if (!Timer.IsEnabled)
-                Timer.Start();
+            if (!timer.IsEnabled)
+                timer.Start();
         }
 
         public static void Close()
         {
-            if (Timer.IsEnabled)
-                Timer.Stop();
+            if (timer.IsEnabled)
+                timer.Stop();
         }
 
         public static bool PortOpen()
         {
-            SerialPort.Use = true;
-            SerialPort.Open();
-            return SerialPort.Connected;
+            serialPort.Use = true;
+            serialPort.Open();
+            return serialPort.Connected;
         }
 
         public static bool PortSetParam(string portName)
         {
-            SerialPort.SetPortParam(portName);
-            return SerialPort.Connected;
+            serialPort.SetPortParam(portName);
+            return serialPort.Connected;
         }
 
         public static bool PortClose()
         {
-            SerialPort.Use = false;
-            SerialPort.Close();
-            return SerialPort.Connected;
+            serialPort.Use = false;
+            serialPort.Close();
+            return serialPort.Connected;
         }
 
         public static bool NetworkConnect(string server, int port)
         {
-            Client.Use = true;
-            Client.Connect(server, port);
-            return Client.Connected;
+            client.Use = true;
+            client.Connect(server, port);
+            return client.Connected;
         }
         
         public static bool NetworkDisconnect()
         {
-            if (Client.Connected)
+            if (client.Connected)
             {
-                Client.Use = false;
-                Client.Disconnect();
+                client.Use = false;
+                client.Disconnect();
             }
-            return Client.Connected;
+            return client.Connected;
         }
 
         private static void CalcSpectrum(object sender, EventArgs e)
@@ -100,14 +102,14 @@ namespace AudioParser
             BassWasapi.BASS_WASAPI_GetData(buffer, Convert.ToInt32(BASSData.BASS_DATA_FFT2048));
             byte[] newData = BufferToBytes(buffer);
 
-            if (!newData.SequenceEqual(LastData))
+            if (!newData.SequenceEqual(lastData))
             {
-                if (SerialPort.Use)
-                    SerialPort.Send(newData);
-                if (Client.Use && Client.Connected)
-                    Client.Send(newData);
+                if (serialPort.Use)
+                    serialPort.Send(newData);
+                if (client.Use && client.Connected)
+                    client.Send(newData);
 
-                LastData = newData;
+                lastData = newData;
             }
 
             NewDataEventArgs args = new NewDataEventArgs(newData[0], newData[1], newData[2]);
@@ -116,56 +118,63 @@ namespace AudioParser
 
         private static byte[] BufferToBytes(float[] buffer)
         {
-            List<byte> result = new List<byte>();
+            byte[] result = new byte[componentsGlobal];
+            int spectrumVal, b0 = 0;
 
-            int x, y, b0 = 0, lines = 16;
-
-            for (x = 0; x < lines; x++)
+            for (int i = 0; i < componentsGlobal; i++)
             {
-                float peak = 0;
+                int sum = 0;
+                for (int x = 0; x < componentsForCalc / componentsGlobal; x++)
+                {
+                    float peak = 0;
+                    int b1 = (int)Math.Pow(2, x * 10 / (componentsForCalc - 1));
 
-                int b1 = (int)Math.Pow(2, x * 10 / (lines - 1));
-                
-                if (b1 > 1023)
-                    b1 = 1023;
-                if (b1 <= b0)
-                    b1 = b0 + 1;
+                    if (b1 > 1023)
+                        b1 = 1023;
+                    if (b1 <= b0)
+                        b1 = b0 + 1;
 
-                for (; b0 < b1; b0++)
-                    if (peak < buffer[1 + b0]) peak = buffer[1 + b0];
+                    for (; b0 < b1; b0++)
+                        if (peak < buffer[1 + b0])
+                            peak = buffer[1 + b0];
 
-                y = (int)(Math.Sqrt(peak) * 3 * 255 - 4);
+                    spectrumVal = (int)(Math.Sqrt(peak) * 3 * 255 - 4);
 
-                if (y > 255) y = 255;
-                if (y < 0) y = 0;
+                    if (spectrumVal > 255)
+                        spectrumVal = 255;
+                    if (spectrumVal < 0)
+                        spectrumVal = 0;
 
-                result.Add((byte)y);
+                    sum += spectrumVal;
+                }
+                result[indexes[i]] = (byte)(sum / (componentsForCalc / componentsGlobal));
+                lastChanges[indexes[i]]++;
             }
 
-            byte[] res = new byte[3];
-            res[Indexes[0]] = (byte)((result[0] + result[1] + result[2] + result[3] + result[4]) / 5);
-            res[Indexes[1]] = (byte)((result[5] + result[6] + result[7] + result[8] + result[9]) / 5);
-            res[Indexes[2]] = (byte)((result[10] + result[11] + result[12] + result[13] + result[14] + result[15]) / 6);
-
             List<int> changingIndexes = new List<int>();
-            for (int i = 0; i < res.Length; i++)
-                for (int j = 0; j < res.Length; j++)
-                    if (res[i] == res[j] && i != j &&
-                        (!changingIndexes.Contains(i) || !changingIndexes.Contains(j)))
+            for (int i = 0; i < result.Length; i++)
+                for (int j = 0; j < result.Length; j++)
+                    if (result[i] == result[j] && 
+                        i != j &&
+                        (!changingIndexes.Contains(i) || !changingIndexes.Contains(j)) &&
+                        (lastChanges[i] >= minTimeWithoutChange * timerInterval && 
+                        lastChanges[j] >= minTimeWithoutChange * timerInterval))
                     {
                         changingIndexes.Add(i);
                         changingIndexes.Add(j);
 
-                        byte valueByte = res[j];
-                        res[j] = res[i];
-                        res[i] = valueByte;
+                        lastChanges[i] = 0;
+                        lastChanges[j] = 0;
 
-                        int valueInt = Indexes[j];
-                        Indexes[j] = Indexes[i];
-                        Indexes[i] = valueInt;
+                        byte valueByte = result[j];
+                        result[j] = result[i];
+                        result[i] = valueByte;
+
+                        int valueInt = indexes[j];
+                        indexes[j] = indexes[i];
+                        indexes[i] = valueInt;
                     }
-
-            return res;
+            return result;
         }
     }
 

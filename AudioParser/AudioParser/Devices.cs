@@ -11,37 +11,32 @@ namespace AudioParser
     /// </summary>
     public static class Devices
     {
-        private static List<Tuple<int, string, int>> DeviceList { get; set; }
+        private static List<Tuple<int, string, int>> deviceList;
         private static WASAPIPROC process;
 
-        /// <summary>
-        /// Функция получения списка аудио устройств.
-        /// </summary>
+
         public static string[] GetDevices()
         {
-            DeviceList = new List<Tuple<int, string, int>>();
+            deviceList = new List<Tuple<int, string, int>>();
 
             for (int i = 0; i < BassWasapi.BASS_WASAPI_GetDeviceCount(); i++)
             {
                 //TODO Сделать устройства с русским названием читаемыми.
                 var device = BassWasapi.BASS_WASAPI_GetDeviceInfo(i);
                 if (device.IsEnabled && device.IsLoopback)
-                    DeviceList.Add(new Tuple<int, string, int>(i, device.name, device.mixfreq));
+                    deviceList.Add(new Tuple<int, string, int>(i, device.name, device.mixfreq));
             }
 
-            return DeviceList.Select(obj => obj.Item2).ToArray();
+            return deviceList.Select(obj => obj.Item2).ToArray();
         }
 
-        /// <summary>
-        /// Функция подключения к аудио устройству.
-        /// </summary>
         public static bool Connect(string deviceName)
         {
             BassWasapi.BASS_WASAPI_Free();
             Bass.BASS_Free();
 
             process = new WASAPIPROC(Process);
-            var dev = DeviceList.Find(x => x.Item2 == deviceName);
+            var dev = deviceList.Find(x => x.Item2 == deviceName);
 
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATETHREADS, false);
             bool isBassInit = Bass.BASS_Init(0, dev.Item3, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
