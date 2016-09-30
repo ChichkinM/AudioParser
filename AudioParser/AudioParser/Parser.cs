@@ -9,7 +9,7 @@ using AudioParser.Properties;
 namespace AudioParser
 {
     /// <summary>
-    /// Логика взаимодейсвия с аудиосигналом.
+    /// Логика обработки аудиосигнала.
     /// </summary>
     public static class Parser
     {
@@ -40,7 +40,27 @@ namespace AudioParser
 
             lastData = new byte[componentsGlobal];
             lastChanges = new int[componentsGlobal];
-            indexes = new int[componentsGlobal] { 0, 1, 2 };
+            indexes = new int[componentsGlobal];
+
+            Random rand = new Random();
+            for (int i = 0; i < componentsGlobal; i++)
+            {
+                bool isContains;
+                int value;
+
+                do
+                {
+                    isContains = false;
+                    value = rand.Next(componentsGlobal);
+                    for (int j = 0; j < i; j++)
+                        if (value == indexes[j])
+                            isContains = true;
+                }
+                while (isContains);
+
+                indexes[i] = value;
+            }
+
 
             timer = new DispatcherTimer();
             timer.Tick += new EventHandler(CalcSpectrum);

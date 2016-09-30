@@ -13,12 +13,17 @@ namespace AudioParser
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string lightGreen = "#1000FF00";
+        private const string middleRed = "#AAFF0000";
+        private const string lightRed = "#10FF0000";
+
         public MainWindow()
         {
             InitializeComponent();
             Parser.OnUpdateData += new Parser.NewDataHandler(NewData);
 
             Parser.Init();
+            Devices.Init();
 
             SetDevices();
             SetSerialPorts();
@@ -34,7 +39,6 @@ namespace AudioParser
             Parser.Close();
             cbDevices.ItemsSource = Devices.GetDevices();
 
-            cbDevices.SelectedValue = Settings.Default.Device;
             if (cbDevices.SelectedItem == null && cbDevices.Items.Count > 0)
                 cbDevices.SelectedIndex = 0;
 
@@ -61,9 +65,6 @@ namespace AudioParser
             {
                 string device = e.AddedItems[0].ToString();
                 Devices.Connect(device);
-
-                Settings.Default.Device = device;
-                Settings.Default.Save();
             }
         }
 
@@ -104,9 +105,9 @@ namespace AudioParser
                 if ((bool)cbComPort.IsChecked)
                 {
                     if (Parser.PortSetParam(e.AddedItems[0].ToString()))
-                        cbComPort.Background = ColorConverter("#1000FF00");
+                        cbComPort.Background = ColorConverter(lightGreen);
                     else
-                        cbComPort.Background = ColorConverter("#AAFF0000");
+                        cbComPort.Background = ColorConverter(middleRed);
                 }
 
                 Settings.Default.SerialPort = e.AddedItems[0].ToString();
@@ -117,9 +118,9 @@ namespace AudioParser
         private void cbComPort_Checked(object sender, RoutedEventArgs e)
         {
             if (Parser.PortOpen())
-                cbComPort.Background = ColorConverter("#1000FF00");
+                cbComPort.Background = ColorConverter(lightGreen);
             else
-                cbComPort.Background = ColorConverter("#AAFF0000");
+                cbComPort.Background = ColorConverter(middleRed);
         }
 
         private void cbComPort_Unchecked(object sender, RoutedEventArgs e)
@@ -151,12 +152,12 @@ namespace AudioParser
                 if (portInt > 0)
                 {
                     if (Parser.NetworkConnect(adr, portInt))
-                        cbEthernet.Background = ColorConverter("#1000FF00");
+                        cbEthernet.Background = ColorConverter(lightGreen);
                     else
-                        cbEthernet.Background = ColorConverter("#AAFF0000");
+                        cbEthernet.Background = ColorConverter(middleRed);
 
-                    tbEthernetAdr.Background = ColorConverter("#1000FF00");
-                    tbEthernetPort.Background = ColorConverter("#1000FF00");
+                    tbEthernetAdr.Background = ColorConverter(lightGreen);
+                    tbEthernetPort.Background = ColorConverter(lightGreen);
                     tbEthernetAdr.IsEnabled = false;
                     tbEthernetPort.IsEnabled = false;
                 }
@@ -166,9 +167,9 @@ namespace AudioParser
                 (sender as CheckBox).IsChecked = false;
 
                 if (!rightAdr)
-                    tbEthernetAdr.Background = ColorConverter("#10FF0000");
+                    tbEthernetAdr.Background = ColorConverter(lightRed);
                 if (!rightPort)
-                    tbEthernetPort.Background = ColorConverter("#10FF0000");
+                    tbEthernetPort.Background = ColorConverter(lightRed);
             }
         }
 
@@ -198,6 +199,31 @@ namespace AudioParser
         private void miUpdateSerialPorts_Click(object sender, RoutedEventArgs e)
         {
             SetSerialPorts();
+        }
+
+        private void miSetDef_Click(object sender, RoutedEventArgs e)
+        {
+            Devices.SetDefaultDevice(cbDevices.Text);
+        }
+
+        private void cbDevices_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            cmUpdateDevice.Items.Clear();
+
+            if (!Devices.IsDefaultDevice(cbDevices.Text))
+            {
+                MenuItem miSetDef = new MenuItem();
+                miSetDef.Header = "Устройство по умолчнию";
+                miSetDef.Click += miSetDef_Click;
+
+                cmUpdateDevice.Items.Add(miSetDef);
+            }
+
+            MenuItem miUpdateDevice = new MenuItem();
+            miUpdateDevice.Header = "Обновить список";
+            miUpdateDevice.Click += miUpdateDevice_Click;
+            
+            cmUpdateDevice.Items.Add(miUpdateDevice);
         }
     }
 }

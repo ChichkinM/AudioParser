@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Управление светом" Height="295.677" Width="579" MinHeight="270" MinWidth="310">
     <Grid>
-        <local:ColorBox x:Name="colorBox" Margin="10,0,9.8,10.4" Height="79" Width="Auto" VerticalAlignment="Bottom"/>
+        <local:ColorBox x:Name="colorBox" Margin="10,177,9.8,10.4" Height="Auto" Width="Auto"/>
         <Grid Margin="10,63,10.2,0" VerticalAlignment="Top">
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -53,10 +53,10 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Label x:Name="label" Content="Устройство воспроизведения" Margin="0" RenderTransformOrigin="0.5,0.363" HorizontalAlignment="Center"/>
-            <ComboBox x:Name="cbDevices" Margin="0" Grid.Row="1" SelectionChanged="cbDevices_SelectionChanged">
+            <ComboBox x:Name="cbDevices" Margin="0" Grid.Row="1" SelectionChanged="cbDevices_SelectionChanged" PreviewMouseRightButtonUp="cbDevices_PreviewMouseRightButtonUp">
                 <ComboBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem x:Name="miUpdateDevice" Header="Обновить" Click="miUpdateDevice_Click" />
+                    <ContextMenu x:Name="cmUpdateDevice">
+                        <!--<MenuItem x:Name="miUpdateDevice" Header="Обновить" Click="miUpdateDevice_Click" />-->
                     </ContextMenu>
                 </ComboBox.ContextMenu>
             </ComboBox>
