@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("wasapi.csproj")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("ico.ico")]
 
 
